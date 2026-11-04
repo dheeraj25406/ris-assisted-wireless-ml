@@ -1,0 +1,25 @@
+{
+  "model_name": "Random Forest Regressor",
+  "best_params": {
+    "max_depth": 10,
+    "min_samples_leaf": 2,
+    "min_samples_split": 5,
+    "n_estimators": 200
+  },
+  "best_group_cv_rmse": 0.6398939940401795,
+  "validation_metrics": {
+    "MAE": 0.2284508540813776,
+    "RMSE": 0.4560836403005183,
+    "R2": 0.9536602006257585
+  },
+  "feature_importances": {
+    "Distance_AP_UE_m": 0.9495325192379126,
+    "Receiver_X_m": 0.03979672799115789,
+    "Receiver_Y_m": 0.0037347812594651845,
+    "Cascaded_Distance_m": 0.002281149326045361,
+    "Product_Distance_m": 0.002238507974733703,
+    "Distance_RIS_UE_m": 0.0018163290703827528,
+    "Log2_RIS_Elements": 0.0003021909356423344,
+    "RIS_Elements": 0.0002977942046601675
+  }
+}

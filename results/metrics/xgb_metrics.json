@@ -1,0 +1,25 @@
+{
+  "model_name": "XGBoost Regressor",
+  "best_params": {
+    "learning_rate": 0.03,
+    "max_depth": 3,
+    "n_estimators": 100,
+    "subsample": 1.0
+  },
+  "best_group_cv_rmse": 0.6387906171677098,
+  "validation_metrics": {
+    "MAE": 0.39636467347563226,
+    "RMSE": 0.6408621125304639,
+    "R2": 0.9085056334890401
+  },
+  "feature_importances": {
+    "Distance_AP_UE_m": 0.6463462710380554,
+    "Receiver_X_m": 0.2954771816730499,
+    "Receiver_Y_m": 0.03616205230355263,
+    "Distance_RIS_UE_m": 0.021591316908597946,
+    "RIS_Elements": 0.000423134071752429,
+    "Log2_RIS_Elements": 0.0,
+    "Cascaded_Distance_m": 0.0,
+    "Product_Distance_m": 0.0
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "target": "Path_Loss_With_RIS_dB_PROVISIONAL",
+  "test_sample_count": 168,
+  "test_ue_count": 42,
+  "overall_test_metrics": {
+    "Baseline (Mean)": {
+      "MAE": 2.057,
+      "RMSE": 2.2461,
+      "R2": -0.0004
+    },
+    "Random Forest": {
+      "MAE": 0.198,
+      "RMSE": 0.3622,
+      "R2": 0.974
+    },
+    "Multi-Layer Perceptron (MLP)": {
+      "MAE": 0.2234,
+      "RMSE": 0.3253,
+      "R2": 0.979
+    },
+    "XGBoost Regressor": {
+      "MAE": 0.2877,
+      "RMSE": 0.41,
+      "R2": 0.9667
+    }
+  },
+  "metrics_by_ris_elements": {
+    "N_16": {
+      "Baseline (Mean)": {
+        "MAE": 2.0722,
+        "RMSE": 2.2563
+      },
+      "Random Forest": {
+        "MAE": 0.1848,
+        "RMSE": 0.3624
+      },
+      "Multi-Layer Perceptron (MLP)": {
+        "MAE": 0.2134,
+        "RMSE": 0.3229
+      },
+      "XGBoost Regressor": {
+        "MAE": 0.2905,
+        "RMSE": 0.4149
+      }
+    },
+    "N_64": {
+      "Baseline (Mean)": {
+        "MAE": 2.0715,
+        "RMSE": 2.2564
+      },
+      "Random Forest": {
+        "MAE": 0.1844,
+        "RMSE": 0.362
+      },
+      "Multi-Layer Perceptron (MLP)": {
+        "MAE": 0.2088,
+        "RMSE": 0.3272
+      },
+      "XGBoost Regressor": {
+        "MAE": 0.2894,
+        "RMSE": 0.4137
+      }
+    },
+    "N_256": {
+      "Baseline (Mean)": {
+        "MAE": 2.0666,
+        "RMSE": 2.2548
+      },
+      "Random Forest": {
+        "MAE": 0.187,
+        "RMSE": 0.3588
+      },
+      "Multi-Layer Perceptron (MLP)": {
+        "MAE": 0.2383,
+        "RMSE": 0.332
+      },
+      "XGBoost Regressor": {
+        "MAE": 0.2856,
+        "RMSE": 0.4089
+      }
+    },
+    "N_1024": {
+      "Baseline (Mean)": {
+        "MAE": 2.0177,
+        "RMSE": 2.2164
+      },
+      "Random Forest": {
+        "MAE": 0.2359,
+        "RMSE": 0.3656
+      },
+      "Multi-Layer Perceptron (MLP)": {
+        "MAE": 0.2333,
+        "RMSE": 0.3188
+      },
+      "XGBoost Regressor": {
+        "MAE": 0.2852,
+        "RMSE": 0.4023
+      }
+    }
+  },
+  "best_model_overall": "Random Forest"
+}

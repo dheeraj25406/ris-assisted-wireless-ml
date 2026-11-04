@@ -1,0 +1,21 @@
+{
+  "model_name": "Multi-Layer Perceptron (MLP)",
+  "best_params": {
+    "alpha": 0.01,
+    "hidden_layer_sizes": [
+      64,
+      32
+    ],
+    "learning_rate_init": 0.001,
+    "max_iter": 500,
+    "solver": "adam"
+  },
+  "best_group_cv_rmse": 0.6257963259355251,
+  "total_iterations": 309,
+  "final_loss": 0.01649944583744707,
+  "validation_metrics": {
+    "MAE": 0.3652971626058136,
+    "RMSE": 0.6640016894164492,
+    "R2": 0.9017791859795357
+  }
+}

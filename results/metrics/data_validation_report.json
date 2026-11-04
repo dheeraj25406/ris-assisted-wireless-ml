@@ -1,0 +1,118 @@
+{
+    "total_rows": 1120,
+    "total_columns": 24,
+    "columns": [
+        "UE_ID",
+        "Frequency_GHz",
+        "Receiver_X_m",
+        "Receiver_Y_m",
+        "Receiver_Z_m",
+        "AP_X_m",
+        "AP_Y_m",
+        "AP_Z_m",
+        "RIS_X_m",
+        "RIS_Y_m",
+        "RIS_Z_m",
+        "Distance_AP_UE_m",
+        "Distance_AP_RIS_m",
+        "Distance_RIS_UE_m",
+        "RIS_Elements",
+        "Direct_Channel_Tap_Energy",
+        "RIS_Channel_Tap_Energy",
+        "Composite_Channel_Tap_Energy",
+        "Path_Loss_No_RIS_dB_PROVISIONAL",
+        "RIS_Component_Loss_dB_PROVISIONAL",
+        "Path_Loss_With_RIS_dB_PROVISIONAL",
+        "RIS_Gain_dB_PROVISIONAL",
+        "Target_Status",
+        "Source_Scenario"
+    ],
+    "missing_values": {
+        "UE_ID": 0,
+        "Frequency_GHz": 0,
+        "Receiver_X_m": 0,
+        "Receiver_Y_m": 0,
+        "Receiver_Z_m": 0,
+        "AP_X_m": 0,
+        "AP_Y_m": 0,
+        "AP_Z_m": 0,
+        "RIS_X_m": 0,
+        "RIS_Y_m": 0,
+        "RIS_Z_m": 0,
+        "Distance_AP_UE_m": 0,
+        "Distance_AP_RIS_m": 0,
+        "Distance_RIS_UE_m": 0,
+        "RIS_Elements": 0,
+        "Direct_Channel_Tap_Energy": 0,
+        "RIS_Channel_Tap_Energy": 0,
+        "Composite_Channel_Tap_Energy": 0,
+        "Path_Loss_No_RIS_dB_PROVISIONAL": 0,
+        "RIS_Component_Loss_dB_PROVISIONAL": 0,
+        "Path_Loss_With_RIS_dB_PROVISIONAL": 0,
+        "RIS_Gain_dB_PROVISIONAL": 0,
+        "Target_Status": 0,
+        "Source_Scenario": 0
+    },
+    "has_missing_values": false,
+    "duplicate_rows": 0,
+    "unique_ue_count": 280,
+    "ris_element_counts": {
+        "16": 280,
+        "64": 280,
+        "256": 280,
+        "1024": 280
+    },
+    "rows_per_ue": 4,
+    "frequencies": [
+        60.0
+    ],
+    "ap_positions": [
+        [
+            10.0,
+            20.0,
+            9.5
+        ]
+    ],
+    "ris_positions": [
+        [
+            0.0,
+            30.0,
+            5.5
+        ]
+    ],
+    "receiver_z_range": [
+        1.5,
+        1.5
+    ],
+    "max_ap_ue_distance_mismatch_m": 5.675023118101308e-09,
+    "max_ap_ris_distance_mismatch_m": 3.30093108402707e-09,
+    "max_ris_ue_distance_mismatch_m": 8.290278685763042e-09,
+    "direct_energy_positive_finite": true,
+    "ris_energy_positive_finite": true,
+    "composite_energy_positive_finite": true,
+    "direct_energy_range": [
+        8.99e-10,
+        6.63e-09
+    ],
+    "ris_energy_range": [
+        7.28e-15,
+        1.17e-10
+    ],
+    "composite_energy_range": [
+        9e-10,
+        6.72e-09
+    ],
+    "max_diff_pl_no_ris_vs_energy_log_dB": 0.01738496008056245,
+    "max_diff_ris_comp_loss_vs_energy_log_dB": 0.020531522380821343,
+    "max_diff_pl_with_ris_vs_energy_log_dB": 0.018208990000005087,
+    "max_diff_ris_gain_identity_dB": 5.000000130857903e-08,
+    "ris_gain_identity_satisfied": true,
+    "count_negative_ris_gain_destructive": 470,
+    "count_positive_ris_gain_constructive": 650,
+    "count_zero_ris_gain": 0,
+    "target_status_values": [
+        "PROVISIONAL_UNVERIFIED"
+    ],
+    "is_provisional_unverified": true,
+    "scientific_classification": "Dataset targets are mathematically consistent definitions derived from ray-tracing channel tap energies via -10*log10(E). However, targets are officially marked 'PROVISIONAL_UNVERIFIED' without absolute physical hardware antenna gain calibration or measurement normalization. All ML regression experiments therefore predict dataset-derived provisional targets with explicit academic transparency."
+}

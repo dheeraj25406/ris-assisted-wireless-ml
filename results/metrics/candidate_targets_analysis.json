@@ -1,0 +1,19 @@
+{
+  "within_ue_no_ris_std_max": 0.0,
+  "path_loss_no_ris_evaluation": {
+    "MAE": 0.1908,
+    "RMSE": 0.3594,
+    "R2": 0.9746
+  },
+  "ris_gain_direct_evaluation": {
+    "MAE": 0.0361,
+    "RMSE": 0.0726,
+    "R2": 0.4488
+  },
+  "ris_gain_indirect_evaluation": {
+    "MAE": 0.0625,
+    "RMSE": 0.101,
+    "R2": -0.0671
+  },
+  "scientific_findings": "1. Path_Loss_No_RIS is identical across all 4 RIS configurations for a given UE (std = 0.0 dB). 2. Predicting Path_Loss_With_RIS directly is the primary wireless engineering goal and yields R\u00b2 ~ 0.97. 3. RIS_Gain has a very narrow dynamic range in this scenario (-0.34 dB to +0.71 dB, total span ~1.05 dB), making direct regression sensitive to tiny phase-interference nuances. Direct modeling achieves MAE ~ 0.05 dB."
+}

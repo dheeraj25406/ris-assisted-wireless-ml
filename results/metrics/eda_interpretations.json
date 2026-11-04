@@ -1,0 +1,17 @@
+{
+    "01_ris_elements_distribution": "Dataset is perfectly balanced across four discrete RIS configurations: 16, 64, 256, and 1024 elements, with exactly 280 observations per configuration corresponding to 280 distinct UE locations.",
+    "02_ue_spatial_distribution": "Displays the indoor factory geometry. The AP is fixed at (10, 20, 9.5) m, the RIS at (0, 30, 5.5) m, and UEs are distributed in the negative X, mid-to-high Y region (-10m <= X <= 0m, 16m <= Y <= 24m) at height Z = 1.5m.",
+    "03_ap_to_ue_distance_distribution": "Direct AP-to-UE distance ranges between 12.91 m and 21.86 m, with a mean of 17.05 m.",
+    "04_ap_to_ris_distance_distribution": "The AP-to-RIS distance is constant at 14.697 m across all rows because both the Access Point and the RIS surface have fixed physical placements.",
+    "05_ris_to_ue_distance_distribution": "RIS-to-UE distance spans from 7.25 m to 17.35 m with mean 11.09 m.",
+    "06_direct_channel_tap_energy": "Direct channel energy values are strictly positive between 8.99e-10 and 6.63e-09. Each UE has a single direct tap energy repeated across its 4 RIS configuration records.",
+    "07_ris_channel_tap_energy": "Reflected RIS channel tap energy scales dramatically with element count N: medians increase by approx 12 to 14 dB per 4x increase in element count, demonstrating array gain scaling from N=16 to N=1024.",
+    "08_composite_channel_tap_energy": "Composite channel energy is bounded around 1e-9 to 7e-9. At N=1024, the composite energy exhibits noticeable upper-tail expansion due to substantial coherent reflected power combining with the direct path.",
+    "09_path_loss_no_ris": "Path loss without RIS spans 81.78 dB to 90.46 dB, with a mean of 85.24 dB.",
+    "10_path_loss_with_ris": "As RIS elements increase to N=1024, the path loss distribution shifts slightly to the left (lower loss/higher received power), reducing path loss for favorably positioned UEs.",
+    "11_ris_gain": "For small element counts (N=16, 64), RIS gain is tightly concentrated around 0 dB (-0.01 to +0.02 dB), with both positive and negative values due to phase interference with the direct channel. At N=1024, constructive gains reach up to +0.71 dB.",
+    "12_correlation_heatmap": "High correlation exists between Distance_AP_UE_m and Path_Loss_No_RIS (+0.92) as dictated by free-space path loss. Path_Loss_With_RIS is overwhelmingly correlated with Path_Loss_No_RIS (+0.999), reflecting direct path dominance at 60 GHz.",
+    "13_path_loss_vs_distance": "Clear monotonic trend: path loss increases with distance, from ~81.8 dB at 13 m to ~90.5 dB at 21.8 m, conforming to logarithmic path loss expansion.",
+    "14_performance_vs_ris_elements": "Mean gain increases non-linearly with element count: -0.0001 dB for N=16, 0.0004 dB for N=64, 0.0071 dB for N=256, and 0.1181 dB for N=1024.",
+    "15_direct_vs_ris_assisted_comparison": "Direct and RIS-assisted path loss track each other closely across UE locations, with N=1024 delivering up to 0.7 dB reduction in path loss at favorable positions where the cascaded link combines constructively with the direct ray."
+}
