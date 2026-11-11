@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RIS Wireless Channel Performance Predictor | 60 GHz mmWave Research</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    /* CSS Variables for Dark and Light Themes */
+    :root[data-theme="dark"] {
+      --bg-base: #0A0E17;
+      --bg-surface: #111827;
+      --bg-card: #162032;
+      --bg-card-hover: #1C283F;
+      --border-subtle: #243047;
+      --border-focus: #38BDF8;
+      --text-main: #F1F5F9;
+      --text-muted: #94A3B8;
+      --text-dim: #64748B;
+      --accent-blue: #38BDF8;
+      --accent-indigo: #818CF8;
+      --accent-green: #34D399;
+      --accent-crimson: #F87171;
+      --badge-bg: #1E293B;
+      --badge-text: #E2E8F0;
+      --canvas-bg: #0D131F;
+      --canvas-grid: #1A2333;
+      --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+    }
+
+    :root[data-theme="light"] {
+      --bg-base: #F8FAFC;
+      --bg-surface: #FFFFFF;
+      --bg-card: #FFFFFF;
+      --bg-card-hover: #F1F5F9;
+      --border-subtle: #E2E8F0;
+      --border-focus: #0284C7;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --text-dim: #94A3B8;
+      --accent-blue: #0284C7;
+      --accent-indigo: #4F46E5;
+      --accent-green: #059669;
+      --accent-crimson: #DC2626;
+      --badge-bg: #F1F5F9;
+      --badge-text: #334155;
+      --canvas-bg: #F8FAFC;
+      --canvas-grid: #E2E8F0;
+      --shadow-card: 0 2px 12px -2px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Reset & Base Typography */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Header & Navigation Bar (No ugly sidebars!) */
+    header.top-navbar {
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(12px);
+    }
+
+    .navbar-container {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .brand-logo {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFFFFF;
+      font-weight: 800;
+      font-size: 0.95rem;
+      letter-spacing: -0.05em;
+    }
+
+    .brand-meta {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title {
+      font-size: 0.98rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text-main);
+    }
+
+    .brand-subtitle {
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    /* Navigation Tabs */
+    .nav-tabs {
+      display: flex;
+      align-items: center;
+      background-color: var(--bg-base);
+      padding: 0.25rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      gap: 0.2rem;
+    }
+
+    .nav-tab-btn {
+      background: none;
+      border: none;
+      padding: 0.45rem 1rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .nav-tab-btn:hover {
+      color: var(--text-main);
+    }
+
+    .nav-tab-btn.active {
+      background-color: var(--bg-surface);
+      color: var(--accent-blue);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Top Action Controls */
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.3rem 0.65rem;
+      background-color: var(--badge-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--badge-text);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: var(--accent-green);
+      box-shadow: 0 0 8px var(--accent-green);
+    }
+
+    .theme-toggle-btn {
+      background-color: var(--badge-bg);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      border-radius: 6px;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .theme-toggle-btn:hover {
+      color: var(--text-main);
+      border-color: var(--accent-blue);
+    }
+
+    /* Main Container */
+    main.app-content {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 1.75rem 1.5rem 3rem;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* Page Views */
+    .tab-view {
+      display: none;
+    }
+
+    .tab-view.active {
+      display: block;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Sub-Headers & Section Bars */
+    .section-head {
+      margin-bottom: 1.5rem;
+    }
+
+    .section-head h2 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.3rem;
+    }
+
+    .section-head p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      max-width: 850px;
+    }
+
+    /* Grid Layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+
+    .grid-layout-split {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 1.5rem;
+    }
+
+    /* Cards */
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 1.25rem;
+      box-shadow: var(--shadow-card);
+    }
+
+    .card-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-dim);
+      margin-bottom: 0.5rem;
+    }
+
+    .card-value {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text-main);
+    }
+
+    .card-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+    }
+
+    /* Advisory Box */
+    .advisory-panel {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-left: 4px solid var(--accent-blue);
+      border-radius: 8px;
+      padding: 1.1rem 1.4rem;
+      margin: 1.25rem 0;
+    }
+
+    .advisory-title {
+      font-size: 0.84rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent-blue);
+      margin-bottom: 0.35rem;
+    }
+
+    .advisory-desc {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Interactive Canvas & Floorplan */
+    .canvas-container {
+      background-color: var(--canvas-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 1rem;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    canvas#floorplanCanvas {
+      width: 100%;
+      height: 400px;
+      cursor: crosshair;
+      border-radius: 6px;
+    }
+
+    .canvas-legend {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-top: 0.75rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .legend-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+
+    /* Sliders & Controls */
+    .control-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .control-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.4rem;
+    }
+
+    .control-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .control-readout {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+    }
+
+    input[type=range] {
+      width: 100%;
+      height: 6px;
+      background: var(--border-subtle);
+      border-radius: 4px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+    }
+
+    /* Segmented Element Buttons */
+    .segmented-control {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .seg-btn {
+      flex: 1;
+      padding: 0.55rem;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .seg-btn.active {
+      background-color: var(--accent-blue);
+      color: #0A0E17;
+      border-color: var(--accent-blue);
+    }
+
+    /* Dropdown Selector */
+    select.custom-select {
+      width: 100%;
+      padding: 0.6rem 0.85rem;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      color: var(--text-main);
+      font-size: 0.84rem;
+      font-weight: 500;
+      outline: none;
+      cursor: pointer;
+    }
+
+    select.custom-select:focus {
+      border-color: var(--accent-blue);
+    }
+
+    /* Table Styles */
+    .table-container {
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      text-align: left;
+    }
+
+    table.data-table th {
+      background-color: var(--bg-surface);
+      padding: 0.75rem 1rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    table.data-table td {
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-main);
+    }
+
+    table.data-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    table.data-table tr:hover td {
+      background-color: var(--bg-card-hover);
+    }
+
+    /* Gallery Grid for Figures */
+    .figure-gallery {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+    }
+
+    .figure-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .figure-card img {
+      width: 100%;
+      height: auto;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .figure-caption {
+      margin-top: 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    /* Footer */
+    footer.app-footer {
+      border-top: 1px solid var(--border-subtle);
+      background-color: var(--bg-surface);
+      padding: 1.25rem 1.5rem;
+      margin-top: auto;
+    }
+
+    .footer-inner {
+      max-width: 1380px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+
+    @media (max-width: 900px) {
+      .grid-layout-split, .grid-4, .grid-3, .grid-2, .figure-gallery {
+        grid-template-columns: 1fr;
+      }
+      .navbar-container {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .nav-tabs {
+        width: 100%;
+        overflow-x: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Sticky Navigation Bar -->
+  <header class="top-navbar">
+    <div class="navbar-container">
+      <div class="brand-section">
+        <div class="brand-logo">RIS</div>
+        <div class="brand-meta">
+          <span class="brand-title">RIS Wireless Performance Platform</span>
+          <span class="brand-subtitle">60 GHz mmWave Empirical Surrogate Engine</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="nav-tabs">
+        <button class="nav-tab-btn active" onclick="switchTab('predictor')">Interactive Predictor</button>
+        <button class="nav-tab-btn" onclick="switchTab('benchmarks')">Model Benchmarks</button>
+        <button class="nav-tab-btn" onclick="switchTab('dataset')">Dataset Analytics</button>
+        <button class="nav-tab-btn" onclick="switchTab('overview')">System & Geometry</button>
+      </nav>
+
+      <!-- Action Controls -->
+      <div class="nav-actions">
+        <div class="status-badge">
+          <span class="status-dot"></span>
+          <span class="mono">GroupSplit 70/15/15</span>
+        </div>
+        <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
+          <span id="themeLabel">Light Mode</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Application Body -->
+  <main class="app-content">
+
+    <!-- ================================================================= -->
+    <!-- TAB 1: INTERACTIVE PREDICTOR (DEFAULT MAIN WORKFLOW)             -->
+    <!-- ================================================================= -->
+    <div id="tab-predictor" class="tab-view active">
+      <div class="section-head">
+        <h2>Live Wireless Channel Performance Predictor</h2>
+        <p>Interact with the 2D floorplan or adjust the coordinate sliders to perform real-time path loss inference and evaluate aperture scaling gains across 16, 64, 256, and 1024 elements.</p>
+      </div>
+
+      <!-- 4 Top KPI Cards -->
+      <div class="grid-4" style="margin-bottom: 1.5rem;">
+        <div class="card">
+          <div class="card-title">Predicted Path Loss</div>
+          <div class="card-value mono" id="kpiPathLoss">83.74 dB</div>
+          <div class="card-desc" id="kpiModelLabel">Random Forest Regressor (N=256)</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Direct Path Length (AP &rarr; UE)</div>
+          <div class="card-value mono" id="kpiDistAP">10.68 m</div>
+          <div class="card-desc">Euclidean line-of-sight separation</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Reflected Length (RIS &rarr; UE)</div>
+          <div class="card-value mono" id="kpiDistRIS">16.31 m</div>
+          <div class="card-desc">Passive metasurface reflected link</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Array Gain vs 16 Elements</div>
+          <div class="card-value mono" id="kpiArrayGain" style="color: var(--accent-green);">+0.002 dB</div>
+          <div class="card-desc" id="kpiGainDesc">Relative path loss reduction</div>
+        </div>
+      </div>
+
+      <!-- Interactive Layout Split: 2D Canvas on Left, Controls & Curve on Right -->
+      <div class="grid-layout-split">
+
+        <!-- Left: Interactive Floorplan Canvas -->
+        <div class="canvas-container">
+          <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+            <span style="font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim);">
+              Interactive Ray-Tracing Floorplan (Click / Drag to Move UE)
+            </span>
+            <span class="mono" style="font-size: 0.78rem; color: var(--text-muted);" id="canvasCoordReadout">
+              UE: (8.5 m, 22.0 m, 1.5 m)
+            </span>
+          </div>
+
+          <canvas id="floorplanCanvas" width="700" height="420"></canvas>
+
+          <div class="canvas-legend">
+            <span class="legend-item">
+              <span class="legend-indicator" style="background-color: var(--accent-crimson);"></span>
+              Access Point (10.0, 20.0, 9.5) m
+            </span>
+            <span class="legend-item">
+              <span class="legend-indicator" style="background-color: var(--accent-blue);"></span>
+              RIS Center (0.0, 30.0, 5.5) m
+            </span>
+            <span class="legend-item">
+              <span class="legend-indicator" style="background-color: var(--accent-green);"></span>
+              Selected User Terminal (UE)
+            </span>
+            <span class="legend-item" style="color: var(--text-dim);">
+              Dotted: Direct &middot; Solid: Incident &middot; Dashed: Reflected
+            </span>
+          </div>
+        </div>
+
+        <!-- Right: Parameter Controls & Aperture Scaling Chart -->
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+
+          <div class="card">
+            <div class="card-title" style="margin-bottom: 1rem;">Coordinate & Aperture Controls</div>
+
+            <!-- Receiver X -->
+            <div class="control-group">
+              <div class="control-header">
+                <span class="control-label">Receiver X Coordinate</span>
+                <span class="control-readout mono" id="sliderValX">8.5 m</span>
+              </div>
+              <input type="range" id="sliderX" min="-18.0" max="28.0" step="0.5" value="8.5" oninput="onCoordinateChange()">
+            </div>
+
+            <!-- Receiver Y -->
+            <div class="control-group">
+              <div class="control-header">
+                <span class="control-label">Receiver Y Coordinate</span>
+                <span class="control-readout mono" id="sliderValY">22.0 m</span>
+              </div>
+              <input type="range" id="sliderY" min="2.0" max="38.0" step="0.5" value="22.0" oninput="onCoordinateChange()">
+            </div>
+
+            <!-- Reflector Aperture Elements (N) -->
+            <div class="control-group">
+              <div class="control-header">
+                <span class="control-label">RIS Aperture Elements (N)</span>
+              </div>
+              <div class="segmented-control">
+                <button class="seg-btn" onclick="selectElements(16, this)">16</button>
+                <button class="seg-btn" onclick="selectElements(64, this)">64</button>
+                <button class="seg-btn active" onclick="selectElements(256, this)">256</button>
+                <button class="seg-btn" onclick="selectElements(1024, this)">1024</button>
+              </div>
+            </div>
+
+            <!-- Model Selection Dropdown -->
+            <div class="control-group" style="margin-bottom: 0;">
+              <div class="control-header">
+                <span class="control-label">Machine Learning Surrogate Model</span>
+              </div>
+              <select class="custom-select" id="modelSelect" onchange="onModelChange()">
+                <option value="random_forest" selected>Random Forest Regressor (Lowest Test MAE: 0.198 dB)</option>
+                <option value="mlp">Multi-Layer Perceptron (Lowest Test RMSE: 0.325 dB)</option>
+                <option value="xgboost">XGBoost Regressor (Test MAE: 0.288 dB)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Aperture Scaling Curve Chart -->
+          <div class="card" style="flex: 1; display: flex; flex-direction: column;">
+            <div class="card-title">Aperture Scaling Profile (16 to 1024 Elements)</div>
+            <div style="flex: 1; min-height: 180px; position: relative;">
+              <canvas id="sweepChart"></canvas>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- TAB 2: MODEL BENCHMARKS                                          -->
+    <!-- ================================================================= -->
+    <div id="tab-benchmarks" class="tab-view">
+      <div class="section-head">
+        <h2>Surrogate Model Performance & Benchmarks</h2>
+        <p>Rigorous comparative evaluation on 42 strictly unseen physical UE locations (168 observations) partitioned via GroupShuffleSplit to prevent spatial coordinate memorization.</p>
+      </div>
+
+      <!-- Benchmark KPI Summary Cards -->
+      <div class="grid-4" style="margin-bottom: 1.5rem;">
+        <div class="card" style="border-top: 3px solid var(--accent-blue);">
+          <div class="card-title">Random Forest (Top MAE)</div>
+          <div class="card-value mono">0.1980 dB</div>
+          <div class="card-desc">RMSE: 0.3622 dB | R&sup2;: 0.9740</div>
+        </div>
+        <div class="card" style="border-top: 3px solid var(--accent-indigo);">
+          <div class="card-title">MLP Neural Net (Top R&sup2;)</div>
+          <div class="card-value mono">0.3253 dB</div>
+          <div class="card-desc">MAE: 0.2234 dB | RMSE: 0.3253 dB</div>
+        </div>
+        <div class="card" style="border-top: 3px solid var(--text-muted);">
+          <div class="card-title">XGBoost Regressor</div>
+          <div class="card-value mono">0.2877 dB</div>
+          <div class="card-desc">RMSE: 0.4100 dB | R&sup2;: 0.9667</div>
+        </div>
+        <div class="card" style="border-top: 3px solid var(--border-subtle);">
+          <div class="card-title">Baseline Predictor (Mean)</div>
+          <div class="card-value mono">2.0570 dB</div>
+          <div class="card-desc">RMSE: 2.2461 dB | R&sup2;: -0.0004</div>
+        </div>
+      </div>
+
+      <!-- Detailed Comparison Table -->
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <div class="card-title">Test Set Evaluation Matrix (Unseen Physical Coordinates)</div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Model Architecture</th>
+                <th>Test MAE (dB)</th>
+                <th>Test RMSE (dB)</th>
+                <th>Coefficient R&sup2;</th>
+                <th>Error Reduction vs Baseline</th>
+                <th>Inference Latency</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Random Forest Regressor</strong></td>
+                <td class="mono">0.1980</td>
+                <td class="mono">0.3622</td>
+                <td class="mono">0.9740</td>
+                <td class="mono" style="color: var(--accent-green); font-weight: 700;">90.4% Reduction</td>
+                <td class="mono">&lt; 0.5 ms</td>
+              </tr>
+              <tr>
+                <td><strong>Multi-Layer Perceptron (MLP)</strong></td>
+                <td class="mono">0.2234</td>
+                <td class="mono">0.3253</td>
+                <td class="mono">0.9790</td>
+                <td class="mono" style="color: var(--accent-green); font-weight: 700;">89.1% Reduction</td>
+                <td class="mono">&lt; 0.2 ms</td>
+              </tr>
+              <tr>
+                <td><strong>XGBoost Regressor</strong></td>
+                <td class="mono">0.2877</td>
+                <td class="mono">0.4100</td>
+                <td class="mono">0.9667</td>
+                <td class="mono" style="color: var(--accent-green); font-weight: 700;">86.0% Reduction</td>
+                <td class="mono">&lt; 0.3 ms</td>
+              </tr>
+              <tr>
+                <td><strong>Baseline (Mean Predictor)</strong></td>
+                <td class="mono">2.0570</td>
+                <td class="mono">2.2461</td>
+                <td class="mono">-0.0004</td>
+                <td class="mono">Reference</td>
+                <td class="mono">&lt; 0.01 ms</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Diagnostic Figures Grid -->
+      <div class="figure-gallery">
+        <div class="figure-card">
+          <img src="/figures/eval_actual_vs_predicted.png" alt="Ground Truth vs Predicted Scatter">
+          <div class="figure-caption">Figure 1: Actual vs. Predicted Path Loss on 42 Unseen Test UEs (168 Observations).</div>
+        </div>
+        <div class="figure-card">
+          <img src="/figures/eval_residual_distributions.png" alt="Residual Error Distributions">
+          <div class="figure-caption">Figure 2: Residual Error Distributions (Target - Predicted) across Evaluated Architectures.</div>
+        </div>
+        <div class="figure-card">
+          <img src="/figures/eval_error_by_ris_elements.png" alt="Error Across RIS Elements">
+          <div class="figure-caption">Figure 3: Test RMSE Breakdown Across RIS Elements (16, 64, 256, 1024).</div>
+        </div>
+        <div class="figure-card">
+          <img src="/figures/eval_feature_importance_comparison.png" alt="Feature Importance">
+          <div class="figure-caption">Figure 4: Feature Importance Comparison (Gini Impurity vs Split Gain).</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- TAB 3: DATASET ANALYTICS                                         -->
+    <!-- ================================================================= -->
+    <div id="tab-dataset" class="tab-view">
+      <div class="section-head">
+        <h2>Ray-Tracing Dataset & Empirical Analytics</h2>
+        <p>1,120 high-fidelity 3D ray-tracing channel observations generated for an indoor factory scenario operating at 60 GHz.</p>
+      </div>
+
+      <div class="grid-4" style="margin-bottom: 1.5rem;">
+        <div class="card">
+          <div class="card-title">Total Records</div>
+          <div class="card-value mono">1,120</div>
+          <div class="card-desc">Exact balance: 280 &times; 4 Apertures</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Unique Coordinates</div>
+          <div class="card-value mono">280 UEs</div>
+          <div class="card-desc">Spatial factory distribution</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Carrier Frequency</div>
+          <div class="card-value mono">60.0 GHz</div>
+          <div class="card-desc">mmWave unlicensed band (&lambda; = 5 mm)</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Data Leakage Check</div>
+          <div class="card-value mono" style="color: var(--accent-green);">0% Overlap</div>
+          <div class="card-desc">GroupShuffleSplit isolation verified</div>
+        </div>
+      </div>
+
+      <!-- Dataset Filter & Table -->
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <div class="card-title" style="margin-bottom: 0;">Empirical Observations Browser</div>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Filter by Aperture:</span>
+            <select class="custom-select" id="datasetApertureSelect" style="width: auto; padding: 0.35rem 0.65rem;" onchange="loadDatasetSample()">
+              <option value="16">N = 16 Elements</option>
+              <option value="64">N = 64 Elements</option>
+              <option value="256" selected>N = 256 Elements</option>
+              <option value="1024">N = 1024 Elements</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table class="data-table" id="datasetTable">
+            <thead>
+              <tr>
+                <th>UE ID</th>
+                <th>X (m)</th>
+                <th>Y (m)</th>
+                <th>d_AP-UE (m)</th>
+                <th>d_RIS-UE (m)</th>
+                <th>Aperture (N)</th>
+                <th>Composite Tap Energy</th>
+                <th>Path Loss with RIS (dB)</th>
+                <th>RIS Gain (dB)</th>
+              </tr>
+            </thead>
+            <tbody id="datasetTableBody">
+              <!-- Dynamically populated via API -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Selected EDA Visualizations -->
+      <div class="figure-gallery">
+        <div class="figure-card">
+          <img src="/figures/10_path_loss_with_ris_distribution.png" alt="Path Loss Distribution">
+          <div class="figure-caption">Path Loss with RIS Histogram Breakdown by Aperture Configuration.</div>
+        </div>
+        <div class="figure-card">
+          <img src="/figures/11_ris_gain_distribution.png" alt="RIS Gain Distribution">
+          <div class="figure-caption">Empirical RIS Gain Distribution: Illustrating Constructive vs Destructive Multi-Path Interference.</div>
+        </div>
+        <div class="figure-card">
+          <img src="/figures/13_path_loss_vs_distance.png" alt="Path Loss vs Distance">
+          <div class="figure-caption">Path Loss vs. Access Point to Receiver Distance (Log-Distance Regression Fit).</div>
+        </div>
+        <div class="figure-card">
+          <img src="/figures/12_correlation_heatmap.png" alt="Feature Correlation">
+          <div class="figure-caption">Feature Cross-Correlation Matrix for Geometric and Energy Descriptors.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- TAB 4: SYSTEM & GEOMETRY                                         -->
+    <!-- ================================================================= -->
+    <div id="tab-overview" class="tab-view">
+      <div class="section-head">
+        <h2>System Architecture & Theoretical Formulation</h2>
+        <p>Physical principles of millimeter-wave wireless propagation assisted by anomalous metasurface reflections.</p>
+      </div>
+
+      <div class="grid-3" style="margin-bottom: 1.5rem;">
+        <div class="card">
+          <div class="card-title">Channel Path A: Direct Link</div>
+          <div style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.35rem;">h_direct (AP &rarr; UE)</div>
+          <div class="card-desc">
+            Direct electromagnetic line-of-sight path. For any fixed user terminal coordinate, its path loss and tap energy remain invariant to the RIS configuration state.
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Channel Path B: RIS Link</div>
+          <div style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.35rem;">h_RIS (AP &rarr; RIS &rarr; UE)</div>
+          <div class="card-desc">
+            Cascaded dyadic reflection link steered by N programmable phase-shift elements. Received power in the far field scales with the cascaded product: &sim; 1 / (d_AP-RIS &middot; d_RIS-UE)&sup2;.
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Channel Path C: Composite</div>
+          <div style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.35rem;">h_comp = h_dir + h_RIS</div>
+          <div class="card-desc">
+            Complex vector superposition of both paths. Exhibits constructive reinforcement when phases align or destructive partial cancellation when phase differences approach 180 degrees.
+          </div>
+        </div>
+      </div>
+
+      <div class="advisory-panel">
+        <div class="advisory-title">Methodological Validation & Target Status Note</div>
+        <div class="advisory-desc">
+          The dataset target column is officially designated <code>Path_Loss_With_RIS_dB_PROVISIONAL</code> with target status <code>PROVISIONAL_UNVERIFIED</code>. 
+          Audits confirm that these target quantities are mathematically derived from ray-tracing channel tap energies via the exact formula: 
+          <code>Path_Loss_dB = -10 &times; log10(Tap_Energy)</code>. 
+          The fundamental conservation law <code>RIS_Gain = Path_Loss_No_RIS - Path_Loss_With_RIS</code> holds to machine precision (discrepancy &le; 5.00 &times; 10^-8 dB). 
+          These values represent internally consistent, dataset-derived simulation targets without uncalibrated hardware measurement claims.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Factory Floor Spatial Geometry & Node Locations</div>
+        <img src="/figures/02_ue_spatial_distribution.png" alt="UE Spatial Distribution" style="width: 100%; border-radius: 6px; margin-top: 0.5rem;">
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Clean Minimalist Footer -->
+  <footer class="app-footer">
+    <div class="footer-inner">
+      <span>Reconfigurable Intelligent Surface (RIS) Wireless Research &middot; 60 GHz mmWave Surrogate Engine</span>
+      <span class="mono">FastAPI Backend &middot; Zero Data Leakage (GroupShuffleSplit)</span>
+    </div>
+  </footer>
+
+  <!-- Application Script -->
+  <script>
+    // System Geometry Constants
+    const AP_POS = { x: 10.0, y: 20.0, z: 9.5 };
+    const RIS_POS = { x: 0.0, y: 30.0, z: 5.5 };
+    const FACTORY_BOUNDS = { minX: -20, maxX: 30, minY: 0, maxY: 40 };
+
+    let currentRx = { x: 8.5, y: 22.0 };
+    let currentElements = 256;
+    let currentModel = 'random_forest';
+    let sweepChartInstance = null;
+
+    // Theme Management
+    function initTheme() {
+      const savedTheme = localStorage.getItem('ris_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeButtonLabel(savedTheme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('ris_theme', next);
+      updateThemeButtonLabel(next);
+      drawFloorplan();
+      if (sweepChartInstance) {
+        updateChartTheme();
+      }
+    }
+
+    function updateThemeButtonLabel(theme) {
+      const label = document.getElementById('themeLabel');
+      label.textContent = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
+    }
+
+    // Tab Navigation
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-view').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-tab-btn').forEach(el => el.classList.remove('active'));
+
+      const targetView = document.getElementById(`tab-${tabId}`);
+      if (targetView) targetView.classList.add('active');
+
+      const btn = Array.from(document.querySelectorAll('.nav-tab-btn')).find(b => 
+        b.getAttribute('onclick').includes(tabId)
+      );
+      if (btn) btn.classList.add('active');
+
+      if (tabId === 'predictor') {
+        setTimeout(() => {
+          drawFloorplan();
+          if (sweepChartInstance) sweepChartInstance.resize();
+        }, 50);
+      } else if (tabId === 'dataset') {
+        loadDatasetSample();
+      }
+    }
+
+    // Element Selection
+    function selectElements(num, btn) {
+      currentElements = num;
+      document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      fetchPrediction();
+      fetchSweep();
+    }
+
+    // Input Change Handlers
+    function onCoordinateChange() {
+      currentRx.x = parseFloat(document.getElementById('sliderX').value);
+      currentRx.y = parseFloat(document.getElementById('sliderY').value);
+      document.getElementById('sliderValX').textContent = `${currentRx.x.toFixed(1)} m`;
+      document.getElementById('sliderValY').textContent = `${currentRx.y.toFixed(1)} m`;
+      document.getElementById('canvasCoordReadout').textContent = `UE: (${currentRx.x.toFixed(1)} m, ${currentRx.y.toFixed(1)} m, 1.5 m)`;
+      drawFloorplan();
+      fetchPrediction();
+      fetchSweep();
+    }
+
+    function onModelChange() {
+      currentModel = document.getElementById('modelSelect').value;
+      fetchPrediction();
+      fetchSweep();
+    }
+
+    // API Calls
+    async function fetchPrediction() {
+      try {
+        const url = `/api/predict?rx_x=${currentRx.x}&rx_y=${currentRx.y}&elements=${currentElements}&model=${currentModel}`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+
+        document.getElementById('kpiPathLoss').textContent = `${data.predicted_path_loss_db.toFixed(2)} dB`;
+        document.getElementById('kpiDistAP').textContent = `${data.distance_ap_ue.toFixed(2)} m`;
+        document.getElementById('kpiDistRIS').textContent = `${data.distance_ris_ue.toFixed(2)} m`;
+
+        const modelNames = {
+          'random_forest': 'Random Forest Regressor',
+          'mlp': 'Multi-Layer Perceptron',
+          'xgboost': 'XGBoost Regressor'
+        };
+        document.getElementById('kpiModelLabel').textContent = `${modelNames[currentModel]} (N=${currentElements})`;
+      } catch (e) {
+        console.error('Prediction fetch failed', e);
+      }
+    }
+
+    async function fetchSweep() {
+      try {
+        const url = `/api/sweep?rx_x=${currentRx.x}&rx_y=${currentRx.y}&model=${currentModel}`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+
+        const sweep = data.sweep;
+        const currentApertureData = sweep.find(s => s.elements === currentElements);
+        if (currentApertureData) {
+          const gain = currentApertureData.relative_gain_vs_16_db;
+          const sign = gain >= 0 ? '+' : '';
+          document.getElementById('kpiArrayGain').textContent = `${sign}${gain.toFixed(3)} dB`;
+          document.getElementById('kpiArrayGain').style.color = gain >= 0 ? 'var(--accent-green)' : 'var(--accent-crimson)';
+          document.getElementById('kpiGainDesc').textContent = `Relative to N=16 baseline (${sweep[0].predicted_path_loss_db.toFixed(2)} dB)`;
+        }
+
+        renderSweepChart(sweep);
+      } catch (e) {
+        console.error('Sweep fetch failed', e);
+      }
+    }
+
+    async function loadDatasetSample() {
+      try {
+        const elem = document.getElementById('datasetApertureSelect').value;
+        const url = `/api/dataset-sample?elements=${elem}&limit=20`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+
+        const tbody = document.getElementById('datasetTableBody');
+        tbody.innerHTML = '';
+        data.records.forEach(row => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="mono">UE_${row.UE_ID}</td>
+            <td class="mono">${row.Receiver_X_m.toFixed(2)}</td>
+            <td class="mono">${row.Receiver_Y_m.toFixed(2)}</td>
+            <td class="mono">${row.Distance_AP_UE_m.toFixed(2)}</td>
+            <td class="mono">${row.Distance_RIS_UE_m.toFixed(2)}</td>
+            <td class="mono">${row.RIS_Elements}</td>
+            <td class="mono">${row.Composite_Channel_Tap_Energy.toExponential(2)}</td>
+            <td class="mono"><strong>${row.Path_Loss_With_RIS_dB_PROVISIONAL.toFixed(2)}</strong></td>
+            <td class="mono" style="color: ${row.RIS_Gain_dB_PROVISIONAL >= 0 ? 'var(--accent-green)' : 'var(--accent-crimson)'};">
+              ${row.RIS_Gain_dB_PROVISIONAL >= 0 ? '+' : ''}${row.RIS_Gain_dB_PROVISIONAL.toFixed(3)}
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (e) {
+        console.error('Dataset sample fetch failed', e);
+      }
+    }
+
+    // Chart.js Rendering for Aperture Scaling
+    function renderSweepChart(sweep) {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const textColor = isDark ? '#94A3B8' : '#475569';
+      const gridColor = isDark ? '#1F293D' : '#E2E8F0';
+
+      const labels = sweep.map(s => `${s.elements} Elements`);
+      const values = sweep.map(s => s.predicted_path_loss_db);
+
+      const ctx = document.getElementById('sweepChart').getContext('2d');
+
+      if (sweepChartInstance) {
+        sweepChartInstance.destroy();
+      }
+
+      sweepChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Predicted Path Loss (dB)',
+            data: values,
+            borderColor: '#38BDF8',
+            backgroundColor: 'rgba(56, 189, 248, 0.1)',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#38BDF8',
+            pointBorderColor: isDark ? '#0A0E17' : '#FFFFFF',
+            pointBorderWidth: 2,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            fill: true,
+            tension: 0.25,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => `Path Loss: ${ctx.parsed.y.toFixed(3)} dB`
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: gridColor },
+              ticks: { color: textColor, font: { family: 'Inter', size: 11, weight: '500' } }
+            },
+            y: {
+              grid: { color: gridColor },
+              ticks: { color: textColor, font: { family: 'JetBrains Mono', size: 10 } }
+            }
+          }
+        }
+      });
+    }
+
+    function updateChartTheme() {
+      if (sweepChartInstance) {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const textColor = isDark ? '#94A3B8' : '#475569';
+        const gridColor = isDark ? '#1F293D' : '#E2E8F0';
+        sweepChartInstance.options.scales.x.grid.color = gridColor;
+        sweepChartInstance.options.scales.x.ticks.color = textColor;
+        sweepChartInstance.options.scales.y.grid.color = gridColor;
+        sweepChartInstance.options.scales.y.ticks.color = textColor;
+        sweepChartInstance.update();
+      }
+    }
+
+    // HTML5 Floorplan Canvas Rendering
+    const canvas = document.getElementById('floorplanCanvas');
+    const ctx = canvas.getContext('2d');
+    let isDragging = false;
+
+    function toCanvasCoords(worldX, worldY) {
+      const padding = 40;
+      const w = canvas.width - padding * 2;
+      const h = canvas.height - padding * 2;
+      const px = padding + ((worldX - FACTORY_BOUNDS.minX) / (FACTORY_BOUNDS.maxX - FACTORY_BOUNDS.minX)) * w;
+      const py = padding + ((FACTORY_BOUNDS.maxY - worldY) / (FACTORY_BOUNDS.maxY - FACTORY_BOUNDS.minY)) * h;
+      return { x: px, y: py };
+    }
+
+    function toWorldCoords(canvasX, canvasY) {
+      const padding = 40;
+      const w = canvas.width - padding * 2;
+      const h = canvas.height - padding * 2;
+      const wx = FACTORY_BOUNDS.minX + ((canvasX - padding) / w) * (FACTORY_BOUNDS.maxX - FACTORY_BOUNDS.minX);
+      const wy = FACTORY_BOUNDS.maxY - ((canvasY - padding) / h) * (FACTORY_BOUNDS.maxY - FACTORY_BOUNDS.minY);
+      return {
+        x: Math.min(Math.max(wx, FACTORY_BOUNDS.minX + 2), FACTORY_BOUNDS.maxX - 2),
+        y: Math.min(Math.max(wy, FACTORY_BOUNDS.minY + 2), FACTORY_BOUNDS.maxY - 2)
+      };
+    }
+
+    function drawFloorplan() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const bgColor = isDark ? '#0D131F' : '#F8FAFC';
+      const gridColor = isDark ? '#1A2333' : '#E2E8F0';
+      const axisTextColor = isDark ? '#64748B' : '#94A3B8';
+
+      // Clear
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Grid Lines
+      ctx.strokeStyle = gridColor;
+      ctx.lineWidth = 1;
+      for (let x = -20; x <= 30; x += 10) {
+        const p1 = toCanvasCoords(x, 0);
+        const p2 = toCanvasCoords(x, 40);
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+
+        ctx.fillStyle = axisTextColor;
+        ctx.font = '9px "JetBrains Mono"';
+        ctx.fillText(`${x}m`, p1.x - 8, canvas.height - 15);
+      }
+
+      for (let y = 0; y <= 40; y += 10) {
+        const p1 = toCanvasCoords(-20, y);
+        const p2 = toCanvasCoords(30, y);
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+
+        ctx.fillStyle = axisTextColor;
+        ctx.font = '9px "JetBrains Mono"';
+        ctx.fillText(`${y}m`, 8, p1.y + 3);
+      }
+
+      const apPt = toCanvasCoords(AP_POS.x, AP_POS.y);
+      const risPt = toCanvasCoords(RIS_POS.x, RIS_POS.y);
+      const uePt = toCanvasCoords(currentRx.x, currentRx.y);
+
+      // Rays
+      // 1. Incident Ray: AP -> RIS (Solid Blue)
+      ctx.strokeStyle = isDark ? '#38BDF8' : '#0284C7';
+      ctx.lineWidth = 2.0;
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(apPt.x, apPt.y);
+      ctx.lineTo(risPt.x, risPt.y);
+      ctx.stroke();
+
+      // 2. Direct Ray: AP -> UE (Dotted Crimson)
+      ctx.strokeStyle = isDark ? '#F87171' : '#DC2626';
+      ctx.lineWidth = 1.8;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(apPt.x, apPt.y);
+      ctx.lineTo(uePt.x, uePt.y);
+      ctx.stroke();
+
+      // 3. Reflected Ray: RIS -> UE (Dash-Dot Emerald)
+      ctx.strokeStyle = isDark ? '#34D399' : '#059669';
+      ctx.lineWidth = 2.0;
+      ctx.setLineDash([8, 4, 2, 4]);
+      ctx.beginPath();
+      ctx.moveTo(risPt.x, risPt.y);
+      ctx.lineTo(uePt.x, uePt.y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Draw AP Node (Red Triangle)
+      ctx.fillStyle = isDark ? '#EF4444' : '#DC2626';
+      ctx.beginPath();
+      ctx.moveTo(apPt.x, apPt.y - 10);
+      ctx.lineTo(apPt.x - 9, apPt.y + 7);
+      ctx.lineTo(apPt.x + 9, apPt.y + 7);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      ctx.fillStyle = isDark ? '#F1F5F9' : '#0F172A';
+      ctx.font = 'bold 10px Inter';
+      ctx.fillText('AP (10, 20)', apPt.x + 12, apPt.y - 2);
+
+      // Draw RIS Node (Blue Square)
+      ctx.fillStyle = isDark ? '#38BDF8' : '#0284C7';
+      ctx.fillRect(risPt.x - 8, risPt.y - 8, 16, 16);
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(risPt.x - 8, risPt.y - 8, 16, 16);
+
+      ctx.fillStyle = isDark ? '#F1F5F9' : '#0F172A';
+      ctx.font = 'bold 10px Inter';
+      ctx.fillText('RIS (0, 30)', risPt.x + 12, risPt.y - 2);
+
+      // Draw User Terminal UE (Green Glowing Circle)
+      ctx.fillStyle = isDark ? '#10B981' : '#059669';
+      ctx.beginPath();
+      ctx.arc(uePt.x, uePt.y, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = isDark ? '#F1F5F9' : '#0F172A';
+      ctx.font = 'bold 10px Inter';
+      ctx.fillText(`UE (${currentRx.x.toFixed(1)}, ${currentRx.y.toFixed(1)})`, uePt.x + 12, uePt.y + 4);
+    }
+
+    // Canvas Mouse Interaction for Dragging UE
+    canvas.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      handleCanvasPointer(e);
+    });
+
+    window.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        handleCanvasPointer(e);
+      }
+    });
+
+    function handleCanvasPointer(e) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const cx = (e.clientX - rect.left) * scaleX;
+      const cy = (e.clientY - rect.top) * scaleY;
+
+      const world = toWorldCoords(cx, cy);
+      currentRx.x = Math.round(world.x * 2) / 2;
+      currentRx.y = Math.round(world.y * 2) / 2;
+
+      document.getElementById('sliderX').value = currentRx.x;
+      document.getElementById('sliderY').value = currentRx.y;
+      document.getElementById('sliderValX').textContent = `${currentRx.x.toFixed(1)} m`;
+      document.getElementById('sliderValY').textContent = `${currentRx.y.toFixed(1)} m`;
+      document.getElementById('canvasCoordReadout').textContent = `UE: (${currentRx.x.toFixed(1)} m, ${currentRx.y.toFixed(1)} m, 1.5 m)`;
+
+      drawFloorplan();
+      fetchPrediction();
+      fetchSweep();
+    }
+
+    // Initialize App on DOM Ready
+    window.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      drawFloorplan();
+      fetchPrediction();
+      fetchSweep();
+    });
+  </script>
+</body>
+</html>

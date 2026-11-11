@@ -95,3 +95,29 @@ def test_model_artifacts_and_prediction_pipeline():
     sweep_df = compare_all_configurations(rx_x=10.0, rx_y=25.0)
     assert len(sweep_df) == 4
     assert list(sweep_df["RIS_Elements"]) == [16, 64, 256, 1024]
+
+
+def test_fastapi_backend_endpoints():
+    """Validates FastAPI prediction, sweep, and metrics routes."""
+    from fastapi.testclient import TestClient
+    from app.api import app
+
+    client = TestClient(app)
+    health = client.get("/api/health")
+    assert health.status_code == 200
+    assert health.json()["status"] == "healthy"
+
+    pred = client.get("/api/predict?rx_x=8.5&rx_y=22.0&elements=256&model=random_forest")
+    assert pred.status_code == 200
+    pdata = pred.json()
+    assert "predicted_path_loss_db" in pdata
+    assert 60.0 <= pdata["predicted_path_loss_db"] <= 110.0
+
+    sweep = client.get("/api/sweep?rx_x=8.5&rx_y=22.0&model=random_forest")
+    assert sweep.status_code == 200
+    sdata = sweep.json()
+    assert len(sdata["sweep"]) == 4
+
+    metrics = client.get("/api/metrics")
+    assert metrics.status_code == 200
+    assert "model_comparison" in metrics.json()
